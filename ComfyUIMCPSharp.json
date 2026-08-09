@@ -1,0 +1,69 @@
+{
+  "ComfyUI": {
+    "BaseUrl": "http://127.0.0.1:8188/",
+    "ApiKey": "",
+    "ComfyUser": "",
+    "ReadOnly": true,
+    "AllowQueueControl": false,
+    "AllowDelete": false,
+    "EnableUploads": true,
+    "UploadSourceDirectory": null,
+    "EnableWorkflowSave": false,
+    "EnableProgressStream": true,
+    "ReturnImagesInline": true,
+    "MaxInlineImageBytes": 4000000,
+    "MaxInlineImagesPerCall": 4,
+    "OutputDirectory": null,
+    "WorkflowDirectory": null,
+    "DefaultWaitSeconds": 300,
+    "MaxWaitSeconds": 1800,
+    "PollIntervalMs": 750,
+    "MaxNodeTypesReturned": 200,
+    "MaxHistoryItems": 25,
+    "MaxJsonChars": 60000,
+    "DefaultCheckpoint": "",
+    "DefaultSampler": "euler",
+    "DefaultScheduler": "normal",
+    "RequestTimeoutSeconds": 120,
+    "UserAgent": "ComfyUIMCPSharp",
+    "AllowInvalidCertificate": false
+  },
+  "Server": {
+    "Host": "localhost",
+    "Port": 5715,
+    "Path": "/mcp",
+    "WindowsServiceName": "ComfyUIMCPSharp",
+    "Password": ""
+  },
+  "Serilog": {
+    "MinimumLevel": {
+      "Default": "Information",
+      "Override": {
+        "Microsoft": "Warning",
+        "Microsoft.Hosting.Lifetime": "Information",
+        "System": "Warning"
+      }
+    },
+    "WriteTo": [
+      {
+        "Name": "Console",
+        "Args": {
+          "outputTemplate": "[{Timestamp:HH:mm:ss} {Level:u3}] {SourceContext}: {Message:lj}{NewLine}{Exception}"
+        }
+      },
+      {
+        "Name": "File",
+        "Args": {
+          "path": "logs/comfyuimcp-.log",
+          "rollingInterval": "Day",
+          "retainedFileCountLimit": 14,
+          "fileSizeLimitBytes": 52428800,
+          "rollOnFileSizeLimit": true,
+          "shared": true,
+          "outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {SourceContext}: {Message:lj}{NewLine}{Exception}"
+        }
+      }
+    ],
+    "Enrich": [ "FromLogContext", "WithMachineName", "WithProcessId", "WithThreadId" ]
+  }
+}

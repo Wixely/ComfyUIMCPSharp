@@ -1,0 +1,6 @@
+<Project>
+  <ItemGroup Condition="'$(PublishSingleFile)' == 'true'">
+    <None Update="**\appsettings*.json;**\$(AssemblyName)*.json;**\*_servers*.json" ExcludeFromSingleFile="true" />
+    <Content Update="**\appsettings*.json;**\$(AssemblyName)*.json;**\*_servers*.json" ExcludeFromSingleFile="true" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,93 @@
+# Build output
+bin/
+obj/
+out/
+publish/
+artifacts/
+*.binlog
+
+# Logs
+logs/
+*.log
+
+# Local secrets / overrides
+appsettings.Development.json
+appsettings.Local.json
+appsettings.*.Local.json
+*MCPSharp.Local.json
+*MCPSharp.*.Local.json
+secrets.json
+.env
+.env.*
+
+# Live inventories and generated key material
+import/
+windows_servers.json
+linux_servers.json
+remote_admin_windows_servers.json
+remote_admin_linux_servers.json
+master.key
+
+# Private keys / certificates
+*.pem
+*.key
+*.pfx
+*.p12
+*.snk
+
+# .NET / NuGet
+project.lock.json
+project.fragment.lock.json
+*.nuget.props
+*.nuget.targets
+*.nupkg
+*.snupkg
+.packages/
+.nuget/
+packages/
+
+# Test and coverage output
+TestResults/
+coverage/
+coverage.*
+*.coverage
+*.coveragexml
+*.trx
+*.opencover.xml
+
+# Playwright artifacts
+playwright-report/
+playwright-traces/
+
+# Rider / ReSharper
+.idea/
+*.DotSettings.user
+_ReSharper*/
+*.[Rr]e[Ss]harper
+
+# Visual Studio
+.vs/
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+*.userprefs
+
+# VS Code (keep shared workspace files)
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Docker leftovers
+.docker/
+.dotnet/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*.swp
+*~
