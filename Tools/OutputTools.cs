@@ -62,12 +62,14 @@ public static class OutputTools
         var (bytes, contentType) = await svc.DownloadBytesAsync(
             ComfyUIService.ViewUrl(filename, subfolder, type), ct);
 
-        var mediaType = contentType ?? ComfyWorkflows.MediaTypeFor(filename);
+        var mediaType = ComfyWorkflows.ResolveMediaType(filename, contentType);
         var blocks = new List<ContentBlock>();
 
-        var inline = svc.Options.ReturnImagesInline
-            && bytes.Length <= svc.Options.MaxInlineImageBytes
-            && mediaType.StartsWith("image/", StringComparison.OrdinalIgnoreCase);
+        // Only genuine images can travel as MCP image content; video, audio and 3D assets are
+        // written to disk and reported by path instead.
+        var isImage = mediaType.StartsWith("image/", StringComparison.OrdinalIgnoreCase);
+        var fitsInline = bytes.Length <= svc.Options.MaxInlineImageBytes;
+        var inline = svc.Options.ReturnImagesInline && isImage && fitsInline;
 
         string? savedPath = null;
         if (!inline)
@@ -86,11 +88,13 @@ public static class OutputTools
                 mediaType,
                 returnedInline = inline,
                 savedPath,
-                note = inline
-                    ? null
-                    : svc.Options.ReturnImagesInline
-                        ? $"Larger than ComfyUI:MaxInlineImageBytes ({svc.Options.MaxInlineImageBytes:N0}); written to disk instead."
-                        : "ComfyUI:ReturnImagesInline is false; written to disk instead.",
+                // Name the actual reason it was not inlined, rather than assuming it was size.
+                note = inline ? null
+                    : !svc.Options.ReturnImagesInline
+                        ? "ComfyUI:ReturnImagesInline is false; written to disk instead."
+                        : !isImage
+                            ? $"Not an image ({mediaType}) — MCP can only carry images inline, so it was written to disk. This is the normal path for video, audio, and 3D outputs."
+                            : $"Larger than ComfyUI:MaxInlineImageBytes ({svc.Options.MaxInlineImageBytes:N0}); written to disk instead.",
             }),
         });
 
@@ -125,7 +129,7 @@ public static class OutputTools
             subfolder,
             type,
             bytes = bytes.Length,
-            mediaType = contentType ?? ComfyWorkflows.MediaTypeFor(filename),
+            mediaType = ComfyWorkflows.ResolveMediaType(filename, contentType),
             path,
         });
     }

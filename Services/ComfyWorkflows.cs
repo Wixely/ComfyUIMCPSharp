@@ -276,6 +276,10 @@ public static class ComfyWorkflows
     public static bool IsImage(OutputRef output) =>
         Path.GetExtension(output.Filename).ToLowerInvariant() is ".png" or ".jpg" or ".jpeg" or ".webp" or ".gif" or ".bmp";
 
+    /// <summary>
+    /// Media type implied by a filename. ComfyUI is not image-only — node packs emit video,
+    /// audio, 3D meshes and text — so the common formats across all of those are mapped here.
+    /// </summary>
     public static string MediaTypeFor(string filename) => Path.GetExtension(filename).ToLowerInvariant() switch
     {
         ".png" => "image/png",
@@ -283,13 +287,41 @@ public static class ComfyWorkflows
         ".webp" => "image/webp",
         ".gif" => "image/gif",
         ".bmp" => "image/bmp",
+        ".tiff" or ".tif" => "image/tiff",
         ".mp4" => "video/mp4",
         ".webm" => "video/webm",
+        ".mkv" => "video/x-matroska",
+        ".mov" => "video/quicktime",
+        ".avi" => "video/x-msvideo",
         ".flac" => "audio/flac",
         ".wav" => "audio/wav",
         ".mp3" => "audio/mpeg",
+        ".ogg" or ".opus" => "audio/ogg",
+        ".m4a" or ".aac" => "audio/mp4",
+        ".glb" => "model/gltf-binary",
+        ".gltf" => "model/gltf+json",
+        ".obj" => "model/obj",
+        ".ply" => "model/ply",
+        ".stl" => "model/stl",
+        ".usdz" => "model/vnd.usdz+zip",
+        ".fbx" => "application/octet-stream",
+        ".json" => "application/json",
+        ".txt" => "text/plain",
         _ => "application/octet-stream",
     };
+
+    /// <summary>
+    /// Decide a file's media type, preferring what the filename implies over what the server
+    /// declared. ComfyUI's /view can hand back a generic or default Content-Type for formats it
+    /// does not recognise, and trusting that blindly would let a non-image be treated as one.
+    /// The server's value is used only when the extension tells us nothing.
+    /// </summary>
+    public static string ResolveMediaType(string filename, string? serverContentType)
+    {
+        var fromName = MediaTypeFor(filename);
+        if (fromName != "application/octet-stream") return fromName;
+        return string.IsNullOrWhiteSpace(serverContentType) ? fromName : serverContentType!;
+    }
 
     // ---------------------------------------------------------------- UI -> API conversion
 

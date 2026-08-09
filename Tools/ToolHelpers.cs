@@ -52,7 +52,7 @@ internal static class ToolHelpers
                     {
                         blocks.Add(ImageContentBlock.FromBytes(
                             bytes,
-                            contentType ?? ComfyWorkflows.MediaTypeFor(output.Filename)));
+                            ComfyWorkflows.ResolveMediaType(output.Filename, contentType)));
                         inlineBudget--;
                     }
                     else

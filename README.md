@@ -187,6 +187,18 @@ Logs land in `<install-dir>\logs\comfyuimcp-*.log`.
 - **Payload caps.** Inline images, node listings, history listings, and echoed JSON are all capped; oversized content spills to disk, or comes back in a small valid envelope carrying the leading fragment, rather than flooding the MCP channel or returning JSON cut mid-token.
 - **Path containment.** Workflow names resolve under `WorkflowDirectory`, and upload `sourcePath` values under `UploadSourceDirectory`; anything escaping either root is refused. Uploads land in ComfyUI's input folder, which `comfy_get_image(type: "input")` can read back — so `sourcePath` stays disabled until you name a directory for it, and inline `contentBase64` is the default route.
 
+## Modalities: not just images
+
+Only one tool is image-specific — `comfy_generate_image`, the convenience text-to-image graph. Everything else is modality-agnostic, because ComfyUI itself is: video (AnimateDiff, SVD, WAN, LTX, Hunyuan), audio (Stable Audio, ACE-Step), and 3D (Hunyuan3D, TripoSR, the 3D packs) all run through the same `/prompt` endpoint.
+
+- **Submitting** — `comfy_submit_prompt` and `comfy_run_workflow` take any API-format graph. They neither know nor care what the graph produces.
+- **Discovering outputs** — outputs are collected from *any* key in a node's output block that holds `{filename, subfolder, type}` entries. That covers `images`, VideoHelperSuite's `gifs`, `audio`, and keys from node packs that didn't exist when this was written.
+- **Retrieving** — `comfy_download_output` fetches any file to disk. `comfy_get_image` also handles any file, but only genuine images come back as inline MCP image content; video, audio, and 3D are written to disk and reported by path, with the reason stated.
+
+The one real limit is **inline viewing**: MCP can carry images as content a model can look at, but there is no equivalent for video, audio, or a mesh. Those come back as a local path plus a ComfyUI URL, which is what a downstream tool needs anyway.
+
+File type is resolved from the filename rather than the server's `Content-Type` header, so a mislabelled or defaulted response cannot cause a non-image to be treated as one.
+
 ## Reading a result
 
 Every run-shaped result carries both `completed` (a history entry exists) and `succeeded` (ComfyUI's own verdict). They are not the same thing: **ComfyUI writes a history entry for failed runs too**, so check `succeeded` rather than inferring success from `completed` or from an empty output list. When `succeeded` is `false`, `comfy_get_history` has the per-node error detail.
